@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Deli Downloader — demo downloader media publik.">
+  <title>Deli Downloader</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="Deli Downloader home">
+        <span class="brand-mark">D</span><span>Deli<span class="brand-light">Downloader</span></span>
+      </a>
+      <span class="tag">BETA</span>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">SIMPLE • FAST • CLEAN</div>
+      <h1>Media favoritmu,<br><span>siap disimpan.</span></h1>
+      <p class="intro">Tempel tautan media publik untuk mencoba mengunduhnya dalam beberapa langkah sederhana.</p>
+    </section>
+    {% if error %}<div class="notice" role="alert"><span class="notice-icon">!</span><span>{{ error }}</span></div>{% endif %}
+    <form class="download-form" action="{{ url_for('download') }}" method="post">
+      <label for="url">Tautan media</label>
+      <div class="input-row">
+        <input id="url" name="url" type="url" placeholder="Tempel URL di sini..." maxlength="2048" autocomplete="url" required>
+        <button type="submit"><span>Download</span><span aria-hidden="true"> ↗</span></button>
+      </div>
+      <p class="hint">URL HTTPS dari YouTube, TikTok, dan Instagram yang kompatibel.</p>
+    </form>
+    <section class="platforms" aria-label="Platform yang didukung">
+      <span class="platform-chip"><span class="dot youtube"></span>YouTube</span>
+      <span class="platform-chip"><span class="dot tiktok"></span>TikTok</span>
+      <span class="platform-chip"><span class="dot instagram"></span>Instagram</span>
+    </section>
+    <section class="info">
+      <div class="info-icon">i</div><div><h2>Gunakan dengan bijak</h2>
+      <p>Hanya unduh konten yang kamu miliki atau punya izin untuk simpan. Konten privat, login-only, dan media dengan pembatasan akses tidak didukung.</p></div>
+    </section>
+    <footer><span>© 2026 Deli Downloader</span><span>Made for learning · Python + Flask</span></footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1 @@
+Flask>=3.1,<4.0\nFlask-Limiter>=3.12,<5.0\nyt-dlp\ngunicorn>=23.0,<24.0\npytest>=8.0,<10.0\n
