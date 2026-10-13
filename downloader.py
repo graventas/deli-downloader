@@ -74,15 +74,6 @@ def download_media(url: str, output_dir: str) -> str:
             "format": "best/bestvideo+bestaudio",
             "overwrites": False,
             "ignoreerrors": False,
-            "extractor_args": {
-                "youtube": {
-                    "player_client": [
-                        "default",
-                        "tv",
-                        "android",
-                    ]
-                }
-            },
         }
 
         with yt_dlp.YoutubeDL(options) as ydl:
