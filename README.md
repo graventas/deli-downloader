@@ -1,6 +1,7 @@
 # Deli Downloader
 
-A small portfolio project built with Python, Flask, and `yt-dlp`. Paste a supported public media URL and the app will attempt to return a downloadable file.
+link:
+https://deli-downloader-production.up.railway.app/
 
 ## Features
 - Responsive dark interface
@@ -20,14 +21,6 @@ py -m venv .venv
 .\.venv\Scripts\python.exe app.py
 ```
 Open `http://127.0.0.1:5000`.
-
-## Deploy to Render
-1. Upload the project files to a GitHub repository named `deli-downloader`.
-2. In Render, select **New → Blueprint** and connect that repository.
-3. Render reads `render.yaml`, installs dependencies, and starts Gunicorn.
-4. Test the public URL with media you are allowed to download.
-
-Downloaded media is temporary, not permanent storage. Free hosting may sleep or impose resource, bandwidth, and runtime limits.
 
 ## Project layout
 ```text
