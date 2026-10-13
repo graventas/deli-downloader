@@ -3,15 +3,11 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ALLOWED_HOSTS = {
-    "youtube.com",
-    "www.youtube.com",
-    "m.youtube.com",
-    "youtu.be",
     "tiktok.com",
     "www.tiktok.com",
     "m.tiktok.com",
-    "instagram.com",
-    "www.instagram.com",
+    "vm.tiktok.com",
+    "vt.tiktok.com",
 }
 
 MAX_BYTES = 200 * 1024 * 1024
@@ -120,10 +116,10 @@ def download_media(url: str, output_dir: str) -> str:
         message = str(exc).lower()
 
         if "sign in to confirm you're not a bot" in message:
-            raise DownloadError(
-                "YouTube menolak permintaan server karena "
-                "pemeriksaan anti-bot. Coba lagi nanti."
-            ) from exc
+    raise DownloadError(
+        "TikTok atau server sumber menolak permintaan "
+        "karena pemeriksaan anti-bot. Coba lagi nanti."
+    ) from exc
 
         if any(
             term in message
