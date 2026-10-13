@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from urllib.parse import urlparse
+from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 ALLOWED_HOSTS = {
     "tiktok.com",
@@ -40,6 +41,57 @@ def validate_url(url: str) -> bool:
         return False
 
 
+class TikTokRedirectHandler(HTTPRedirectHandler):
+    """Allow redirects only to approved TikTok hosts."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not validate_url(newurl):
+            raise DownloadError(
+                "Pengalihan URL menuju alamat yang tidak diizinkan."
+            )
+
+        return super().redirect_request(
+            req, fp, code, msg, headers, newurl
+        )
+
+
+def normalize_tiktok_url(url: str) -> str:
+    """Resolve TikTok short links to their canonical URL."""
+
+    parsed = urlparse(url)
+    hostname = (parsed.hostname or "").lower().rstrip(".")
+
+    short_hosts = {"vt.tiktok.com", "vm.tiktok.com"}
+
+    if hostname not in short_hosts:
+        return url
+
+    try:
+        opener = build_opener(TikTokRedirectHandler())
+        request = Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+
+        with opener.open(request, timeout=15) as response:
+            final_url = response.geturl()
+
+        if not validate_url(final_url):
+            raise DownloadError(
+                "URL TikTok hasil pengalihan tidak valid."
+            )
+
+        return final_url
+
+    except DownloadError:
+        raise
+    except Exception as exc:
+        raise DownloadError(
+            "Gagal membuka link pendek TikTok. "
+            "Coba gunakan URL video TikTok lengkap."
+        ) from exc
+
+
 def download_media(url: str, output_dir: str) -> str:
     if not validate_url(url):
         raise DownloadError(
@@ -47,7 +99,9 @@ def download_media(url: str, output_dir: str) -> str:
         )
 
     try:
-        import yt_dlp
+    url = normalize_tiktok_url(url)
+
+    import yt_dlp
 
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
