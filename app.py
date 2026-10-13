@@ -3,7 +3,12 @@ from pathlib import Path
 from flask import Flask, render_template, request, send_file
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from downloader import download_media, validate_url, DownloadError
+from downloader import (
+    download_media,
+    validate_url,
+    normalize_tiktok_url,
+    DownloadError,
+)
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
@@ -17,9 +22,40 @@ def index():
 @app.post("/download")
 @limiter.limit("3 per hour")
 def download():
-    url = (request.form.get("url") or "").strip()
-    if not validate_url(url):
-        return render_template("index.html", error="Masukkan URL HTTPS yang valid dari platform yang didukung."), 400
+    
+url = (request.form.get("url") or "").strip()
+
+if not validate_url(url):
+    # Hanya izinkan URL TikTok pendek yang memang kita dukung.
+    from urllib.parse import urlparse
+
+    try:
+        parsed = urlparse(url)
+        hostname = (parsed.hostname or "").lower().rstrip(".")
+
+        if (
+            parsed.scheme != "https"
+            or hostname not in {"vt.tiktok.com", "vm.tiktok.com"}
+            or parsed.username
+            or parsed.password
+            or parsed.port not in (None, 443)
+        ):
+            return render_template(
+                "index.html",
+                error="Masukkan URL HTTPS TikTok yang valid.",
+            ), 400
+
+        url = normalize_tiktok_url(url)
+
+    except DownloadError as exc:
+        return render_template("index.html", error=str(exc)), 400
+
+if not validate_url(url):
+    return render_template(
+        "index.html",
+        error="URL TikTok tidak valid atau tidak didukung.",
+    ), 400
+
     temp_dir = tempfile.mkdtemp(prefix="deli-download-")
     try:
         output_path = Path(download_media(url, temp_dir))
