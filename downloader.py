@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from urllib.parse import urlparse
+import shutil
 
 ALLOWED_HOSTS = {
     "youtube.com",
@@ -18,7 +19,7 @@ MAX_BYTES = 200 * 1024 * 1024
 
 
 class DownloadError(Exception):
-    """A safe, user-displayable download error."""
+    """Error aman untuk ditampilkan kepada pengguna."""
 
 
 def validate_url(url: str) -> bool:
@@ -37,8 +38,7 @@ def validate_url(url: str) -> bool:
         if parsed.port not in (None, 443):
             return False
 
-        hostname = parsed.hostname.lower().rstrip(".")
-        return hostname in ALLOWED_HOSTS
+        return parsed.hostname.lower().rstrip(".") in ALLOWED_HOSTS
 
     except (ValueError, TypeError):
         return False
@@ -53,9 +53,10 @@ def download_media(url: str, output_dir: str) -> str:
     try:
         import yt_dlp
 
-        output_path = Path(output_dir)
+        output_path = Path(output_dir).resolve()
         output_path.mkdir(parents=True, exist_ok=True)
 
+        # ID media membantu menemukan hasil unduhan yang tepat.
         template = str(
             output_path / "%(title).80B-%(id)s.%(ext)s"
         )
@@ -71,10 +72,21 @@ def download_media(url: str, output_dir: str) -> str:
             "windowsfilenames": True,
             "quiet": True,
             "no_warnings": True,
-            "format": "best/bestvideo+bestaudio",
+            "format": (
+                "bestvideo[ext=mp4]+bestaudio[ext=m4a]"
+                "/best[ext=mp4]"
+                "/bestvideo+bestaudio"
+                "/best"
+            ),
+            "merge_output_format": "mp4",
             "overwrites": False,
             "ignoreerrors": False,
         }
+
+        if not shutil.which("ffmpeg"):
+            raise DownloadError(
+                "FFmpeg belum tersedia di server."
+            )
 
         with yt_dlp.YoutubeDL(options) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -84,25 +96,32 @@ def download_media(url: str, output_dir: str) -> str:
                     "Media tidak ditemukan atau tidak bisa diakses."
                 )
 
-            prepared = Path(ydl.prepare_filename(info))
-
-            if prepared.is_file():
-                result = prepared
-            else:
-                candidates = [
-                    p for p in output_path.glob("*")
-                    if p.is_file()
-                ]
-
-                if not candidates:
-                    raise DownloadError(
-                        "File hasil download tidak ditemukan."
-                    )
-
-                result = max(
-                    candidates,
-                    key=lambda p: p.stat().st_mtime,
+            # Playlist tidak diizinkan; ambil ID media tunggal.
+            media_id = info.get("id")
+            if not media_id:
+                raise DownloadError(
+                    "Informasi media tidak lengkap."
                 )
+
+            # Cari file yang benar-benar dihasilkan untuk ID ini,
+            # termasuk hasil merge yang berekstensi .mp4.
+            candidates = [
+                p for p in output_path.glob(f"*-{media_id}.*")
+                if p.is_file()
+                and p.suffix.lower() in {
+                    ".mp4", ".webm", ".mkv", ".mov"
+                }
+            ]
+
+            if not candidates:
+                raise DownloadError(
+                    "File hasil download tidak ditemukan."
+                )
+
+            result = max(
+                candidates,
+                key=lambda p: p.stat().st_mtime,
+            )
 
             if result.stat().st_size > MAX_BYTES:
                 result.unlink(missing_ok=True)
@@ -120,35 +139,33 @@ def download_media(url: str, output_dir: str) -> str:
 
         if "sign in to confirm you're not a bot" in message:
             raise DownloadError(
-                "YouTube menolak permintaan server karena "
-                "pemeriksaan anti-bot. Coba lagi nanti."
+                "YouTube menolak permintaan server "
+                "karena pemeriksaan anti-bot. Coba lagi nanti."
             ) from exc
 
-        if any(
-            term in message
-            for term in (
-                "private video",
-                "video is private",
-                "login required",
-                "sign in",
-                "private",
-            )
-        ):
+        if any(term in message for term in (
+            "private video",
+            "video is private",
+            "login required",
+            "private",
+        )):
             raise DownloadError(
                 "Media privat atau memerlukan login tidak didukung."
             ) from exc
 
-        if any(
-            term in message
-            for term in (
-                "max-filesize",
-                "file is larger",
-                "filesize",
-                "maximum file size",
-            )
-        ):
+        if any(term in message for term in (
+            "max-filesize",
+            "file is larger",
+            "filesize",
+            "maximum file size",
+        )):
             raise DownloadError(
                 "File melebihi batas ukuran 200 MB."
+            ) from exc
+
+        if "ffmpeg" in message:
+            raise DownloadError(
+                "Pemrosesan video gagal. Periksa instalasi FFmpeg."
             ) from exc
 
         raise DownloadError(
