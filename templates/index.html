@@ -3,42 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Deli Downloader — demo downloader media publik.">
-  <title>Deli Downloader</title>
+  <meta name="description" content="DeliTok — pengunduh video TikTok publik yang simpel.">
+  <meta name="theme-color" content="#e11d48">
+  <title>DeliTok — TikTok Video Downloader</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
-      <a class="brand" href="{{ url_for('index') }}" aria-label="Deli Downloader home">
-        <span class="brand-mark">D</span><span>Deli<span class="brand-light">Downloader</span></span>
+      <a class="brand" href="{{ url_for('index') }}" aria-label="DeliTok home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-label="TikTok-style music note">
+            <path d="M15 3v11.2a4.4 4.4 0 1 1-3-4.18V6.9c1.5 2 3.7 3.1 6 3.2V6.7c-1.7-.1-2.9-1.2-3-3.7Z" fill="#25f4ee" transform="translate(-1 0)"/>
+            <path d="M15 3v11.2a4.4 4.4 0 1 1-3-4.18V6.9c1.5 2 3.7 3.1 6 3.2V6.7c-1.7-.1-2.9-1.2-3-3.7Z" fill="#fe2c55" transform="translate(1 0)"/>
+            <path d="M15 3v11.2a4.4 4.4 0 1 1-3-4.18V6.9c1.5 2 3.7 3.1 6 3.2V6.7c-1.7-.1-2.9-1.2-3-3.7Z" fill="#fff"/>
+          </svg>
+        </span>
+        <span>Deli<span class="brand-light">Tok</span></span>
       </a>
       <span class="tag">BETA</span>
     </header>
+
     <section class="hero">
-      <div class="eyebrow">SIMPLE • FAST • CLEAN</div>
-      <h1>Media favoritmu,<br><span>siap disimpan.</span></h1>
-      <p class="intro">Tempel tautan media publik untuk mencoba mengunduhnya dalam beberapa langkah sederhana.</p>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> TIKTOK VIDEO DOWNLOADER</div>
+      <h1>Video favoritmu.<br><span>Simpan dengan mudah.</span></h1>
+      <p class="intro">Tempel tautan video TikTok publik untuk mulai mengunduh dalam beberapa langkah sederhana.</p>
     </section>
+
     {% if error %}<div class="notice" role="alert"><span class="notice-icon">!</span><span>{{ error }}</span></div>{% endif %}
+
     <form class="download-form" action="{{ url_for('download') }}" method="post">
-      <label for="url">Tautan media</label>
+      <label for="url">Tautan video TikTok</label>
       <div class="input-row">
-        <input id="url" name="url" type="url" placeholder="Tempel URL di sini..." maxlength="2048" autocomplete="url" required>
-        <button type="submit"><span>Download</span><span aria-hidden="true"> ↗</span></button>
+        <input id="url" name="url" type="url" placeholder="Tempel URL TikTok di sini..." maxlength="2048" autocomplete="url" required>
+        <button type="submit"><span>Download Video</span><span aria-hidden="true"> ↓</span></button>
       </div>
-      <p class="hint">URL HTTPS dari YouTube, TikTok, dan Instagram yang kompatibel.</p>
+      <p class="hint">Gunakan tautan HTTPS TikTok yang bisa diakses publik.</p>
     </form>
+
     <section class="platforms" aria-label="Platform yang didukung">
-      <span class="platform-chip"><span class="dot youtube"></span>YouTube</span>
-      <span class="platform-chip"><span class="dot tiktok"></span>TikTok</span>
-      <span class="platform-chip"><span class="dot instagram"></span>Instagram</span>
+      <span class="platform-chip"><span class="tiktok-icon" aria-hidden="true">♪</span> TikTok saja</span>
+      <span class="platform-note">Simpel · Bersih · Fokus</span>
     </section>
+
     <section class="info">
-      <div class="info-icon">i</div><div><h2>Gunakan dengan bijak</h2>
-      <p>Hanya unduh konten yang kamu miliki atau punya izin untuk simpan. Konten privat, login-only, dan media dengan pembatasan akses tidak didukung.</p></div>
+      <div class="info-icon">i</div>
+      <div><h2>Gunakan dengan bijak</h2>
+      <p>Hanya unduh konten yang kamu miliki atau punya izin untuk menyimpannya. Konten privat dan media dengan pembatasan akses tidak didukung.</p></div>
     </section>
-    <footer><span>© 2026 Deli Downloader</span><span>Made for learning · Python + Flask</span></footer>
+
+    <footer><span>© 2026 DeliTok</span><span>Made for learning · Python + Flask</span></footer>
   </main>
 </body>
 </html>
