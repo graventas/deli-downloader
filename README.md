@@ -1,19 +1,9 @@
-# Deli Downloader
+# Deli Downloader (Tiktok Only)
 
-link:
+link online:
 https://deli-downloader-production.up.railway.app/
 
-## Features
-- Responsive dark interface
-- Compatible public URLs from YouTube, TikTok, and Instagram
-- HTTPS URL allowlist, 200 MB limit, and basic rate limiting
-- Temporary per-request download storage
-- Render deployment configuration and basic tests
-
-## Responsible use
-Only download content you own or have permission to save. Respect copyright, platform terms, and applicable law. Private/login-only media is not supported; do not use this project to bypass DRM or access controls. Platform support can change, and successful deployment does not guarantee every URL will work. Review hosting-provider policies before public deployment.
-
-## Run locally on Windows PowerShell
+## Kalo mau jalanin local di powershell
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
